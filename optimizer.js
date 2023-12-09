@@ -14,8 +14,11 @@ var optimizer = module.exports = {
         return new Promise((resolve, reject) => {
             filename += ".txt";
             fs.writeFileSync(path.resolve(processPath, filename), '');
-            optimizer.runProcess(filename)
-            resolve();
+            optimizer.runProcess(filename).then(() => {
+                resolve();
+            }).catch(err => {
+                reject(err);
+            });
         })
     },
     runProcess: function (txtFileName) {

@@ -36,7 +36,6 @@ router.post('/store', uploader.array("files"), async function (req, res, next) {
       await new Promise((resolve, reject) => {
         ffmpeg(path.resolve(uploadPath, req.files[i].filename))
           .thumbnail({
-            // get first frame only
             timestamps: [0],
             filename: imageFileName,
             folder: uploadPath,
@@ -46,10 +45,10 @@ router.post('/store', uploader.array("files"), async function (req, res, next) {
       });
     }
 
-    optimizer.addProcess(imageFileName);
+    if (/\.(jpg|jpeg|png|gif|bmp|svg)$/i.test(imageFileName)) {
+      optimizer.addProcess(imageFileName);
+    }
   }
-
-
 
   res.json(req.files.map(file => file.filename));
 });
@@ -58,13 +57,11 @@ router.get('/:filename', function (req, res, next) {
   var filename = req.params.filename;
   var type = req.query.type;
 
-  if (/\.(mp4|avi|mov|mkv|wmv)$/i.test(filename) && type == 'thumbnail') {
+  if (/\.(mp4|avi|mov|mkv|wmv)$/i.test(filename) && (type == 'thumb' || type == 'thumbnail')) {
     filename = filename.substring(0, filename.lastIndexOf('.')) + ".jpg";
   }
 
-  if (/\.(mp4|avi|mov|mkv|wmv)$/i.test(filename)) {
-    res.sendFile(path.resolve(uploadPath, filename));
-  } else {
+  if (/\.(jpg|jpeg|png|gif|bmp|svg)$/i.test(filename)) {
     var size = req.query.size;
 
     if (size == "small" && fs.existsSync(path.resolve(uploadPath, filename.substring(0, filename.lastIndexOf('.')) + "_small" + filename.substring(filename.lastIndexOf('.'))))) {
@@ -72,9 +69,9 @@ router.get('/:filename', function (req, res, next) {
     } else if (size == "medium" && fs.existsSync(path.resolve(uploadPath, filename.substring(0, filename.lastIndexOf('.')) + "_medium" + filename.substring(filename.lastIndexOf('.'))))) {
       filename = filename.substring(0, filename.lastIndexOf('.')) + "_medium" + filename.substring(filename.lastIndexOf('.'));
     }
-
-    res.sendFile(path.resolve(uploadPath, filename));
   }
+
+  res.sendFile(path.resolve(uploadPath, filename));
 });
 
 module.exports = router;
