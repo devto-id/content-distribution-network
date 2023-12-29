@@ -103,7 +103,8 @@ router.get('/:filename', function (req, res, next) {
 });
 
 router.get('/:filename/stream', function (req, res, next) {
-  const range = req.headers.range;
+  const range = req.headers.range || "bytes=0-";
+
   if (!range) {
     res.status(400).send("Requires Range header");
     return;
