@@ -120,7 +120,7 @@ router.get('/:filename/stream', function (req, res, next) {
     "Content-Range": `bytes ${start}-${end}/${videoSize}`,
     "Accept-Ranges": "bytes",
     "Content-Length": contentLength,
-    "Content-Type": "video/mp4",
+    "Content-Type": `video/${path.extname(req.params.filename).substring(1)}`,
   };
 
   res.writeHead(206, headers);
